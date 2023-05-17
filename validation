@@ -1,0 +1,148 @@
+import React, { useState } from 'react';
+import {
+    Container,
+    Typography,
+    TextField,
+    Button,
+    Grid,
+} from '@mui/material';
+
+const App = () => {
+    const [formValues, setFormValues] = useState({
+        topic: '',
+        question: '',
+        answer: '',
+    });
+
+    const [formErrors, setFormErrors] = useState({
+        topic: '',
+        question: '',
+        answer: '',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues({ ...formValues, [name]: value });
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        validateField(name, value);
+    };
+
+    const validateField = (name, value) => {
+        let errorMessage = '';
+
+        // Validation requirements
+        const validations = {
+            topic: { min: 4 },
+            question: { min: 12 },
+            answer: { min: 15, max: 30 },
+        };
+
+        if (value.trim() === '') {
+            errorMessage = `${name} is required`;
+        } else if (value.length < validations[name].min) {
+            errorMessage = `Minimum ${validations[name].min} characters`;
+        } else if (
+            validations[name].max &&
+            value.length > validations[name].max
+        ) {
+            errorMessage = `Maximum ${validations[name].max} characters`;
+        }
+
+        setFormErrors({ ...formErrors, [name]: errorMessage });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // Validate all fields before submission
+        Object.keys(formValues).forEach((name) =>
+            validateField(name, formValues[name])
+        );
+
+        // Check if any errors exist
+        const hasErrors = Object.values(formErrors).some((error) => error !== '');
+
+        if (!hasErrors) {
+            // Handle form submission
+            console.log(formValues);
+            // Reset the form
+            setFormValues({
+                topic: '',
+                question: '',
+                answer: '',
+            });
+        }
+    };
+
+    return (
+        <Container maxWidth="sm">
+            <Typography variant="h5" align="center" gutterBottom>
+                Form Validation Example
+            </Typography>
+            <form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Topic"
+                            name="topic"
+                            variant="outlined"
+                            fullWidth
+                            value={formValues.topic}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={!!formErrors.topic}
+                            helperText={formErrors.topic}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Question"
+                            name="question"
+                            variant="outlined"
+                            fullWidth
+                            value={formValues.question}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={!!formErrors.question}
+                            helperText={formErrors.question}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Answer"
+                            name="answer"
+                            variant="outlined"
+                            fullWidth
+                            value={formValues.answer}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={!!formErrors.answer}
+                            helperText={formErrors.answer}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            disabled={
+                                Object.values(formErrors).some((error) => error !== '') ||
+                                !formValues.topic ||
+                                !formValues.question ||
+                                !formValues.answer
+                            }
+                        >
+                            Submit
+                        </Button>
+                    </Grid>
+                </Grid>
+            </form>
+        </Container>
+    );
+};
+
+export default App;
